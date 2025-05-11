@@ -185,31 +185,10 @@ def migrate_pricing():
     pricing_data = sql_cursor.fetchall()
 
     # Группируем цены по хостелам и типам комнат
-    #pricing_map = {}
     for price in pricing_data:
-        #key = f"{price.hostel_id}"#f"{price.hostel_id}_{price.type_of_gender}_{price.type_comfort}"
-
-        # if key not in pricing_map:
-        #     pricing_map[key] = {
-        #         "hostel_id": price.hostel_id,
-        #         #"room_type": price.type_of_gender,
-        #         #"comfort_type": price.comfort_type,
-        #         "prices": []
-        #     }
-        # pricing_map = {
-        #     "hostel_id": price.hostel_id,
-        #     # "room_type": price.type_of_gender,
-        #     # "comfort_type": price.comfort_type,
-        #     "prices": []
-        # }
-
         start_date = datetime.combine(price.start_date, datetime.min.time())
         end_date = datetime.combine(price.end_date, datetime.min.time())
-        # pricing_map[key]["prices"].append({
-        #     "price": price.price,
-        #     "start_date": start_date,
-        #     "end_date": end_date
-        # })
+
         prices_list = []
         prices_list.append({
             "price": price.price,
@@ -218,15 +197,10 @@ def migrate_pricing():
         })
         pricing_map = {
             "hostel_id": price.hostel_id,
-            # "room_type": price.type_of_gender,
-            # "comfort_type": price.comfort_type,
             "prices": prices_list
         }
 
         db.pricing.insert_one(pricing_map)
-    # Сохраняем в MongoDB
-    # for pricing in pricing_map.values():
-    #     db.pricing.insert_one(pricing)
 
     print(f"Перенесено {len(pricing_data)} записей о ценах")
 
@@ -384,7 +358,7 @@ def migrate_accommodations():
 
 def clear_collections():
     """Очистка коллекций перед миграцией"""
-    collections_to_clear = ['pricing', 'accommodation']#['hostel', 'client', 'employee', 'pricing', 'reservation', 'accommodation']
+    collections_to_clear = ['hostel', 'client', 'employee', 'pricing', 'reservation', 'accommodation']
     for collection in collections_to_clear:
         if collection in db.list_collection_names():
             db[collection].drop()  # Правильный способ удаления коллекции
@@ -397,11 +371,11 @@ def main():
     clear_collections()
 
     # Выполняем миграцию
-    # migrate_hostels()
-    # migrate_employees()
-    # migrate_clients()
+    migrate_hostels()
+    migrate_employees()
+    migrate_clients()
     migrate_pricing()
-    # migrate_reservations()
+    migrate_reservations()
     migrate_accommodations()
 
     print("Миграция завершена успешно!")
